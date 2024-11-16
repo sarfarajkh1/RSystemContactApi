@@ -1,8 +1,15 @@
-var builder = WebApplication.CreateBuilder(args);
+using RSystem.Contact.Business;
+using RSystem.Contact.Data.FileSystem;
+using RSystemContactApi.Middleware;
 
+var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.SetBasePath(builder.Environment.ContentRootPath);
 // Add services to the container.
 
-builder.Services.AddControllers();
+var services = builder.Services;
+services.AddTransient<IContactService, ContactService>();
+services.AddCors();
+services.AddControllers();
 
 var app = builder.Build();
 
@@ -13,5 +20,8 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseCors(options => options.WithOrigins("http://localhost:4200").AllowAnyMethod());
 
 app.Run();
