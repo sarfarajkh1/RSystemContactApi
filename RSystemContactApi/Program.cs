@@ -8,7 +8,15 @@ builder.Configuration.SetBasePath(builder.Environment.ContentRootPath);
 
 var services = builder.Services;
 services.AddTransient<IContactService, ContactService>();
-services.AddCors();
+
+const string corsPolicy = "AllowAllOrigins";
+services.AddCors(options => options.AddPolicy(corsPolicy,
+                    builder =>
+                    {
+                        builder.AllowAnyOrigin();
+                        builder.AllowAnyHeader();
+                        builder.AllowAnyMethod();
+                    }));
 services.AddControllers();
 
 var app = builder.Build();
@@ -22,6 +30,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
-app.UseCors(options => options.WithOrigins("http://localhost:4200").AllowAnyMethod());
+app.UseCors(corsPolicy);
 
 app.Run();
